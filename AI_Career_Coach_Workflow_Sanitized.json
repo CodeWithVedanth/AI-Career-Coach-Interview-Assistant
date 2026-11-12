@@ -1,0 +1,425 @@
+{
+  "name": "AI Career Coach & Interview Preparation Assistant",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "AI Career Coach",
+        "formDescription": "Get your personalized career guidance and interview preparation report.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Full Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email",
+              "fieldType": "email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Qualification",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Target Job Role",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Current Technical Skills",
+              "fieldType": "textarea",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Job Description",
+              "fieldType": "textarea",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        0,
+        0
+      ],
+      "id": "c1d35afc-6f53-422e-982c-39e69127ee8b",
+      "name": "On form submission"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "72590113-64d3-4d9a-8175-15dcff7f8574",
+              "name": "student_name",
+              "value": "={{ $json[\"Full Name\"] }}",
+              "type": "string"
+            },
+            {
+              "id": "3d2de207-a0fa-4a47-bc53-354acb5468e1",
+              "name": "email",
+              "value": "={{ $json[\"Email\"] }}",
+              "type": "string"
+            },
+            {
+              "id": "b1107d39-34ec-4499-81f3-9632cfac7d22",
+              "name": "qualification",
+              "value": "={{ $json[\"Qualification\"] }}",
+              "type": "string"
+            },
+            {
+              "id": "6bf91a27-0210-4af6-a33e-97797ea3b79d",
+              "name": "target_role",
+              "value": "={{ $json[\"Target Job Role\"] }}",
+              "type": "string"
+            },
+            {
+              "id": "cd4319aa-1812-478c-880a-7febf49a2ab0",
+              "name": "skills",
+              "value": "={{ $json[\"Current Technical Skills\"] }}",
+              "type": "string"
+            },
+            {
+              "id": "e86f44a9-d280-4595-a4e6-8761a768b1cd",
+              "name": "job_description",
+              "value": "={{ $json[\"Job Description\"] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        0
+      ],
+      "id": "354d0677-bdc8-476d-9d9b-6b2c5e2ca505",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an expert AI Career Coach and Interview Preparation Assistant.\n\nAnalyze the student's information and generate a personalized career preparation report.\n\nStudent Information:\n- Name: {{ $json.student_name }}\n- Email: {{ $json.email }}\n- Qualification: {{ $json.qualification }}\n- Career Goal: {{ $json.target_role }}\n- Current Skills: {{ $json.skills }}\n- Job Description: {{ $json.job_description }}\n\nGenerate a detailed and practical report using the following structure:\n\n1. CAREER PROFILE\nExplain the student's current profile and suitability for the target career.\n\n2. SKILL ANALYSIS\nIdentify existing skills, strengths, and important missing skills.\n\n3. SKILL DEVELOPMENT ROADMAP\nProvide beginner-friendly steps to improve the required skills.\n\n4. INTERVIEW PREPARATION\nProvide 10 important interview questions with simple answers related to the target role.\n\n5. PRACTICAL PROJECT SUGGESTIONS\nSuggest three projects suitable for the student's current skill level.\n\n6. DAILY LEARNING PLAN\nCreate a realistic 2-hour daily study schedule.\n\n7. CAREER IMPROVEMENT TIPS\nGive five practical suggestions to improve employability.\n\n8. FINAL RECOMMENDATION\nProvide an encouraging and personalized conclusion.\n\nIMPORTANT FORMATTING RULES:\n- Use clean, plain text only.\n- Do not use Markdown symbols such as ###, **, *, or ---.\n- Use clear numbered headings.\n- Use simple English that beginners can understand.\n- Use short paragraphs and numbered lists.\n- Make the report professional and easy to read.\n- Avoid unnecessary explanations.\n- Do not invent the student's qualifications or experience.\n- Personalize every section using the supplied information.",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        448,
+        0
+      ],
+      "id": "6ed7aa01-843c-414d-a856-e35754582e90",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        528,
+        224
+      ],
+      "id": "8d56142c-bc71-4eeb-93d8-73f11c9cff55",
+      "name": "Google Gemini Chat Model"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "REPLACE_WITH_YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Select your own Google Sheet after import"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "AI career report": "={{ $json.text }}",
+            "Generated Date": "={{ $now }}",
+            "Student Name": "={{ $('Edit Fields').item.json.student_name }}",
+            "Email": "={{ $('Edit Fields').item.json.email }}",
+            "Qualification": "={{ $('Edit Fields').item.json.qualification }}",
+            "Target Role": "={{ $('Edit Fields').item.json.target_role }}",
+            "Skills": "={{ $('Edit Fields').item.json.skills }}",
+            "Interview Topic": "={{ $('Edit Fields').item.json.job_description }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Student Name",
+              "displayName": "Student Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Qualification",
+              "displayName": "Qualification",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Target Role",
+              "displayName": "Target Role",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Skills",
+              "displayName": "Skills",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Interview Topic",
+              "displayName": "Interview Topic",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "AI career report",
+              "displayName": "AI career report",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Generated Date",
+              "displayName": "Generated Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        800,
+        0
+      ],
+      "id": "5703cb32-65a3-438f-9cbb-b79d08b3ec47",
+      "name": "Append row in sheet"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Edit Fields').item.json.email }}",
+        "subject": "Your Personalized AI Career Report",
+        "message": "=\n={{\n`<!DOCTYPE html>\n<html>\n<body style=\"margin:0;padding:25px;background:#f4f6f9;font-family:Arial,sans-serif;\">\n  <div style=\"max-width:650px;margin:auto;background:#ffffff;border-radius:12px;overflow:hidden;\">\n    <div style=\"background:#173b65;padding:25px;text-align:center;color:white;\">\n      <h1 style=\"margin:0;font-size:24px;\">AI Career Coach</h1>\n      <p style=\"margin:8px 0 0;\">Your Personalized Career Report</p>\n    </div>\n\n    <div style=\"padding:28px;color:#333333;\">\n      <h2 style=\"color:#173b65;\">Hello ${$('Edit Fields').item.json.student_name || 'Student'},</h2>\n      <p>Your personalized AI career coaching report is ready!</p>\n\n      <div style=\"background:#f4f7fb;padding:20px;border-radius:8px;white-space:pre-wrap;line-height:1.6;\">${$('Basic LLM Chain').item.json.text || 'Your report is being prepared.'}</div>\n\n      <p style=\"margin-top:25px;\">Keep learning, practising, and moving towards your career goals!</p>\n      <p>Best wishes,<br><strong>AI Career Coach Assistant</strong></p>\n    </div>\n\n    <div style=\"background:#eef2f7;padding:15px;text-align:center;color:#667085;font-size:12px;\">\n      This report was generated using an AI-powered career coaching workflow.\n    </div>\n  </div>\n</body>\n</html>`\n}}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1024,
+        0
+      ],
+      "id": "9da373a6-b3c3-4636-954e-009f8836b4fd",
+      "name": "Send a message",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "REPLACE_WITH_YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Select your own Google Sheet after import"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 984465936,
+          "mode": "list",
+          "cachedResultName": "Sheet2"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $now }}",
+            "Student Name": "={{ $('Edit Fields').item.json.student_name }}",
+            "Email": "={{ $('Edit Fields').item.json.email }}",
+            "Error Message": "={{ $json.message }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Student Name",
+              "displayName": "Student Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Error Message",
+              "displayName": "Error Message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1264,
+        80
+      ],
+      "id": "db216db2-29d1-462e-9e5d-7710b33bc903",
+      "name": "Append row in sheet1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Append row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "tags": []
+}
