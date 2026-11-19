@@ -84,7 +84,9 @@ BCA Student | Generative AI Enthusiast
 
 - GitHub: [CodeWithVedanth](https://github.com/CodeWithVedanth)
 - LinkedIn: [Vedanth G T](https://linkedin.com/in/vedanth-g-t-048581381)
+ ## Workflow Overview
+ ![AI Career Coach Workflow](workflow-overview.png)
 
----
+----
 
 ⭐ If you find this project useful, feel free to explore and share your feedback!
